@@ -1,3 +1,5 @@
+This document is subject to small changes. These changes will not affect maximum cap.
+
 # **TRIP Token Sale Summary **
 
 This document explains the distribution of TRIP and the details of the token sale. 
