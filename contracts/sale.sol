@@ -1,10 +1,10 @@
 pragma solidity ^0.4.17;
 
-import "ds-token/token.sol";
-import "ds-auth/auth.sol";
-import "ds-math/math.sol";
-import "ds-note/note.sol";
-import "ds-stop/stop.sol";
+import "./lib/token.sol";
+import "./lib/auth.sol";
+import "./lib/math.sol";
+import "./lib/note.sol";
+import "./lib/stop.sol";
 
 contract StandardSale is DSNote, DSStop, DSMath {
 
