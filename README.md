@@ -1,4 +1,5 @@
 This document is subject to small changes. These changes will not affect maximum cap.
+Last edit Nov the 14th. Due to a change in development road map the token distribution campaign has been postponed till the release of an MVP in 2018. New dates TBA
 
 # **TRIP Token Sale Summary **
 
@@ -6,7 +7,7 @@ This document explains the distribution of TRIP and the details of the token sal
 
 # **Summary**
 
-* Start on 14th November (UTC 3pm)
+* TBA
 
 * Ends in 14 days or when the hard cap is reached
 
