@@ -14,6 +14,7 @@ contract TRIPCrowdsale is FinalizableCrowdsale, Pausable {
     uint256 public crowdsaleHardCapInWei; // 36000e18;
     uint256 public crowdsaleSoftCapInWei; // 26000e18;
     uint256 public preSaleCapInWei; // 18000e18;
+    uint256 public crowdsaleEndsFromReachingSoftCap;
 
     // token figures
     uint256 constant public TOTAL_SUPPLY_CROWDSALE = 80000000e18;
@@ -92,6 +93,9 @@ contract TRIPCrowdsale is FinalizableCrowdsale, Pausable {
         // update state
         weiRaised = weiRaised.add(weiAmount);
 
+        if (weiRaised >= crowdsaleSoftCapInWei && crowdsaleEndsFromReachingSoftCap == 0)
+            crowdsaleEndsFromReachingSoftCap = now + 2 days;
+
         token.mint(beneficiary, tokens);
 
         TokenPurchase(msg.sender, beneficiary, weiAmount, tokens);
@@ -102,6 +106,9 @@ contract TRIPCrowdsale is FinalizableCrowdsale, Pausable {
     // overriding Crowdsale#hasEnded to add cap logic
     // @return true if crowdsale event has ended
     function hasEnded() public view returns (bool) {
+        if (crowdsaleEndsFromReachingSoftCap > 0)
+            return now >= crowdsaleEndsFromReachingSoftCap;
+
         bool capReached = weiRaised >= crowdsaleHardCapInWei;
         return super.hasEnded() || capReached;
     }
@@ -110,6 +117,10 @@ contract TRIPCrowdsale is FinalizableCrowdsale, Pausable {
     // @return true if investors can buy at the moment
     function validPurchase() internal view returns (bool) {
         bool withinCap = weiRaised.add(msg.value) <= crowdsaleHardCapInWei;
+
+        if (crowdsaleEndsFromReachingSoftCap > 0)
+            return withinCap && now <= crowdsaleEndsFromReachingSoftCap;
+
         return super.validPurchase() && withinCap;
     }
 
@@ -177,7 +188,7 @@ contract TRIPCrowdsale is FinalizableCrowdsale, Pausable {
      * @dev Fetches Bonus tier percentage per bonus milestones
      * @return uint256 representing percentage of the bonus tier
      */
-    function getBonusTier() internal view returns (uint256) {
+    function getBonusTier() internal returns (uint256) {
         bool preSalePeriod = now >= startTime && now <= presaleEndTime;
         bool crowdsalePeriod = now > presaleEndTime;
 

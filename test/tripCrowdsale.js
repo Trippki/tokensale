@@ -172,7 +172,7 @@ contract('TRIPCrowdsale', ([owner, wallet, wallet2, buyer, buyer2, advisor1, adv
         it('stops crowdsale once the hardCap is reached', async () => {
             await timer(dayInSecs * 42)
 
-            await crowdsale.buyTokens(buyer2, { from: advisor1, value: 21e+18 })
+            await crowdsale.buyTokens(buyer2, { from: advisor1, value: crowdsaleHardCapInWei })
 
             try {
                 await crowdsale.buyTokens(buyer, { from: advisor1, value })
@@ -181,8 +181,43 @@ contract('TRIPCrowdsale', ([owner, wallet, wallet2, buyer, buyer2, advisor1, adv
                 ensuresException(e)
             }
 
+            const buyer2Balance = await token.balanceOf(buyer2)
+            buyer2Balance.should.be.bignumber.equal(1050e+18)
+
             const buyerBalance = await token.balanceOf(buyer)
             buyerBalance.should.be.bignumber.equal(0)
+        })
+
+        it('stops crowdsale 48 hours after the softCap is reached', async () => {
+            await timer(dayInSecs * 42)
+            await crowdsale.buyTokens(buyer2, { from: advisor2, value: crowdsaleSoftCapInWei })
+            await timer(dayInSecs * 2.1)
+
+            try {
+                await crowdsale.buyTokens(buyer, { from: advisor2, value })
+                assert.fail()
+            } catch (e) {
+                ensuresException(e)
+            }
+
+            const buyer2Balance = await token.balanceOf(buyer2)
+            buyer2Balance.should.be.bignumber.equal(250e+18)
+
+            const buyerBalance = await token.balanceOf(buyer)
+            buyerBalance.should.be.bignumber.equal(0)
+        })
+
+        it('is able to buy tokens within 48 hours after the softCap is reached', async () => {
+            await timer(dayInSecs * 42)
+            await crowdsale.buyTokens(buyer2, { from: advisor2, value: crowdsaleSoftCapInWei })
+            await timer(dayInSecs * 1)
+            await crowdsale.buyTokens(buyer, { from: advisor2, value })
+
+            const buyer2Balance = await token.balanceOf(buyer2)
+            buyer2Balance.should.be.bignumber.equal(250e+18)
+
+            const buyerBalance = await token.balanceOf(buyer)
+            buyerBalance.should.be.bignumber.equal(50e+18)
         })
     })
 

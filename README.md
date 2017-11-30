@@ -20,9 +20,6 @@ Last edit Nov the 14th. Due to a change in development road map the token distri
 - Compile contract code
   - `node_modules/.bin/truffle compile`
 
-- Start testrpc server
-  - `testrpc --accounts="10"`
-
 - Deploy contracts
   - `node_modules/.bin/truffle develop`
   Once you are in the develop console, run the command:
