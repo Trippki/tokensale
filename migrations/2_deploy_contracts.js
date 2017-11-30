@@ -3,7 +3,7 @@ const BigNumber = web3.BigNumber
 const dayInSecs = 86400
 
 const startTime = web3.eth.getBlock(web3.eth.blockNumber).timestamp
-const symbol = "TKN"
+const symbol = "TRIP"
 const totalCap = new BigNumber(10000e+18)
 const forSale = new BigNumber(8000e+18)
 const cap =  new BigNumber(1000e+18)

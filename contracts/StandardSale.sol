@@ -1,10 +1,6 @@
 pragma solidity ^0.4.17;
 
-import "./lib/token.sol";
-import "./lib/auth.sol";
-import "./lib/math.sol";
-import "./lib/note.sol";
-import "./lib/stop.sol";
+import "./lib/Token.sol";
 
 contract StandardSale is DSNote, DSStop, DSMath {
 
@@ -57,7 +53,7 @@ contract StandardSale is DSNote, DSStop, DSMath {
         token.stop();
     }
 
-    function time() internal returns (uint) {
+    function time() internal view returns (uint) {
         return block.timestamp;
     }
 
