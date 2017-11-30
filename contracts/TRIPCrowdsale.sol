@@ -2,7 +2,7 @@ pragma solidity ^0.4.18;
 
 import "zeppelin-solidity/contracts/crowdsale/FinalizableCrowdsale.sol";
 import "zeppelin-solidity/contracts/lifecycle/Pausable.sol";
-import "./TeamAndAdvisorsAllocation.sol";
+import "./Vault.sol";
 import "./TRIPToken.sol";
 
 /**
@@ -11,17 +11,19 @@ import "./TRIPToken.sol";
  */
 
 contract TRIPCrowdsale is FinalizableCrowdsale, Pausable {
-    uint256 constant public TOTAL_SUPPLY = 245714286e18;
-    uint256 constant public TOTAL_SUPPLY_CROWDSALE = 172000000e18; // 70% for sale during crowdsale
-    uint256 constant public PRE_SALE_SUPPLY = 32000000e18;
+    uint256 constant public TOTAL_SUPPLY = 200000000e18;
+    uint256 constant public TOTAL_SUPPLY_CROWDSALE = 80000000e18;
+    uint256 constant public CROWDSALE_WEI_HARD_CAP = 36000e18;
+    uint256 constant public CROWDSALE_WEI_SOFT_CAP = 26000e18;
+    uint256 constant public PRE_SALE_WEI_CAP = 18000e18;
 
     // Company and advisor allocation figures
-    uint256 public constant COMPANY_SHARE = 58914286e18;
-    uint256 public constant TEAM_ADVISORS_SHARE = 14800000e18;
+    uint256 public constant COMPANY_SHARE = 20000000e18; // 10% to company
+    uint256 public constant VAULT_SHARE = 80000000e18;
 
     uint256 public presaleEndTime;
 
-    TeamAndAdvisorsAllocation public teamAndAdvisorsAllocation;
+    Vault public vault;
 
     /**
      * @dev Contract constructor function
@@ -87,9 +89,9 @@ contract TRIPCrowdsale is FinalizableCrowdsale, Pausable {
      * @dev finalizes crowdsale
      */
     function finalization() internal {
-        teamAndAdvisorsAllocation = new TeamAndAdvisorsAllocation(owner, token);
+        vault = new Vault(owner, token);
         token.mint(wallet, COMPANY_SHARE);
-        token.mint(teamAndAdvisorsAllocation, TEAM_ADVISORS_SHARE);
+        token.mint(vault, VAULT_SHARE);
 
         if (token.totalSupply() < TOTAL_SUPPLY_CROWDSALE) {
             uint256 remainingTokens = TOTAL_SUPPLY_CROWDSALE.sub(TOTAL_SUPPLY);
@@ -111,10 +113,10 @@ contract TRIPCrowdsale is FinalizableCrowdsale, Pausable {
 
     /**
      * @dev checks whether it is pre sale and if there is minimum purchase requirement
-     * @return truthy if token total supply is less than PRE_SALE_SUPPLY
+     * @return truthy if token total supply is less or equal than PRE_SALE_WEI_CAP
      */
     function checkPreSaleCap() internal view returns (bool) {
-        return token.totalSupply() <= PRE_SALE_SUPPLY;
+        return weiRaised <= PRE_SALE_WEI_CAP;
     }
 
      /**
