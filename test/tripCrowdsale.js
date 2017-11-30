@@ -1,11 +1,13 @@
-const StandardSale = artifacts.require("./StandardSale.sol");
+const TRIPCrowdsale = artifacts.require("./TRIPCrowdsale.sol");
+const TRIPToken = artifacts.require("./TRIPToken.sol");
+const TeamAndAdvisorsAllocation = artifacts.require("./TeamAndAdvisorsAllocation.sol");
 
 import { should, ensuresException, getBlockNow } from './helpers/utils'
 import timer from './helpers/timer'
 
 const BigNumber = web3.BigNumber
 
-contract('StandardSale', ([owner, wallet, buyer, buyer2, advisor1, advisor2]) => {
+contract('TRIPCrowdsale', ([owner, wallet, buyer, buyer2, advisor1, advisor2]) => {
     const rate = new BigNumber(50)
     const newRate =  new BigNumber(172000000)
     const dayInSecs = 86400
@@ -23,7 +25,7 @@ contract('StandardSale', ([owner, wallet, buyer, buyer2, advisor1, advisor2]) =>
         presaleEndTime = startTime + (dayInSecs * 20) // 20 days
         endTime = startTime + (dayInSecs * 60) // 60 days
 
-        return ODEMCrowdsale.new(
+        return TRIPCrowdsale.new(
             startTime,
             presaleEndTime,
             endTime,
@@ -34,7 +36,7 @@ contract('StandardSale', ([owner, wallet, buyer, buyer2, advisor1, advisor2]) =>
 
     beforeEach('initialize contract', async () => {
         crowdsale = await newCrowdsale(rate)
-        token = ODEMToken.at(await crowdsale.token())
+        token = TRIPToken.at(await crowdsale.token())
     })
 
     it('has a normal crowdsale rate', async () => {
@@ -81,7 +83,7 @@ contract('StandardSale', ([owner, wallet, buyer, buyer2, advisor1, advisor2]) =>
         it('stops presale once the presaleCap is reached', async () => {
             const newRate = new BigNumber(73714286)
             crowdsale = await newCrowdsale(newRate)
-            token = ODEMToken.at(await crowdsale.token())
+            token = TRIPToken.at(await crowdsale.token())
             await timer(50) // within presale period
 
             await crowdsale.buyTokens(buyer2, { value })
@@ -117,7 +119,7 @@ contract('StandardSale', ([owner, wallet, buyer, buyer2, advisor1, advisor2]) =>
     describe('crowdsale finalization', function () {
         beforeEach(async function () {
             crowdsale = await newCrowdsale(newRate)
-            token = ODEMToken.at(await crowdsale.token())
+            token = TRIPToken.at(await crowdsale.token())
 
             await timer(dayInSecs * 42)
 
@@ -142,7 +144,7 @@ contract('StandardSale', ([owner, wallet, buyer, buyer2, advisor1, advisor2]) =>
     describe('teamAndAdvisorsAllocations', function () {
         beforeEach(async function () {
             crowdsale = await newCrowdsale(newRate)
-            token = ODEMToken.at(await crowdsale.token())
+            token = TRIPToken.at(await crowdsale.token())
 
             await timer(50)
 

@@ -1,16 +1,34 @@
-const StandardSale = artifacts.require("./StandardSale.sol");
+const TRIPToken = artifacts.require("./TRIPToken.sol");
+const TRIPCrowdsale = artifacts.require("./TRIPCrowdsale.sol");
 const BigNumber = web3.BigNumber
 const dayInSecs = 86400
 
-const startTime = web3.eth.getBlock(web3.eth.blockNumber).timestamp
-const symbol = "TRIP"
-const totalCap = new BigNumber(10000e+18)
-const forSale = new BigNumber(8000e+18)
-const cap =  new BigNumber(1000e+18)
-const softCap = new BigNumber(900e+18)
-const timeLimit =  startTime + (86400 * 5) // 5 days
-const softCapTimeLimit = startTime + (86400 * 1) // 1 day
+const startTime = web3.eth.getBlock(web3.eth.blockNumber).timestamp + 80
+const presaleEndTime = startTime + (86400 * 20) // 20 days
+const endTime = startTime + (dayInSecs * 60) // 60 days
+const rate = new BigNumber(500)
 
-module.exports = function(deployer, network, [wallet]) {
-  deployer.deploy(StandardSale, symbol, totalCap, forSale, cap, softCap, timeLimit, softCapTimeLimit, startTime, wallet);
+module.exports = function(deployer, network, [_, wallet]) {
+    if(network == 'rinkeby' || network == 'testnet') {
+        deployer.deploy(
+            TRIPCrowdsale,
+            startTime,
+            presaleEndTime,
+            endTime,
+            rate,
+            wallet
+        );
+    } else {
+        // token deployed only for testing purposes. NOTE: dont use it for the mainnet.
+        deployer.deploy(TRIPToken);
+
+        deployer.deploy(
+            TRIPCrowdsale,
+            startTime,
+            presaleEndTime,
+            endTime,
+            rate,
+            wallet
+        );
+    }
 };
