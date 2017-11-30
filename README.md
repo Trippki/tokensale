@@ -1,6 +1,62 @@
 This document is subject to small changes. These changes will not affect maximum cap.
 Last edit Nov the 14th. Due to a change in development road map the token distribution campaign has been postponed till the release of an MVP in 2018. New dates TBA
 
+## Development
+
+**Dependencies**
+
+- `node@8.5.x`
+- `truffle@^4.0.1`
+- `ethereumjs-testrpc@^4.0.x`
+- `zeppelin-solidity@1.4.X`
+
+## Setting Up
+
+- Clone this repository.
+
+- Install all [system dependencies](#development).
+  - `npm install`
+
+- Compile contract code
+  - `node_modules/.bin/truffle compile`
+
+- Start testrpc server
+  - `testrpc --accounts="10"`
+
+- Deploy contracts
+  - `node_modules/.bin/truffle develop`
+  Once you are in the develop console, run the command:
+  - `migrate --reset`
+
+## Running tests
+    - `node_modules/.bin/truffle develop`
+    Once you are in the develop console, run the command:
+    - `test`
+
+# If you work on these contracts, write tests!
+**Testing Pattern**
+- a good pattern to use, when testing restrictions on contract is to structure this way:
+
+```javascript
+describe("testing user restriction", () => {
+    beforeEach("deploy and prepare", () => {
+        // Deploy a contract(s) and prepare it up
+        // to the pass / fail point
+    })
+
+    it("test the failing user", () => {
+        // Test something with the bad user
+        // in as few steps as possible
+    })
+
+    it("test the good user", () => {
+        // Test the VERY SAME steps,
+        // with only difference being the good user
+    })
+})
+```
+
+
 # **TRIP Token Sale Summary **
 
 This document explains the distribution of TRIP and the details of the token sale.
