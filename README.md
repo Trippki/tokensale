@@ -97,7 +97,7 @@ This document explains the distribution of TRIP and the details of the token sal
 
 ## TRIP
 
-It is an Ethereum based token implemented as ERC20 and is the functional token of the Trippki ecosystem. It powers a decentralised reward protocol for customer loyalty. There will be 200M TRIP in existence. No more TRIP will be issued after the  token sale period is over. To ensure a wide distribution of TRIP to end consumers, and to provide initial liquidity 40%, of TRIP is held in The Vault smart contract.
+It is an Ethereum based token implemented as ERC20 and is the functional token of the Trippki ecosystem. It powers a decentralised reward protocol for customer loyalty. There will be 200M TRIP in existence. No more TRIP will be issued after the token sale period is over. To ensure a wide distribution of TRIP to end consumers, and to provide initial liquidity 40%, of TRIP is held in The Vault smart contract.
 
 ## TRIP Pre-sale (Bonus Period)
 

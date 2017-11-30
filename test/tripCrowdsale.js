@@ -1,24 +1,25 @@
 const TRIPCrowdsale = artifacts.require("./TRIPCrowdsale.sol");
 const TRIPToken = artifacts.require("./TRIPToken.sol");
-const Vault = artifacts.require("./Vault.sol");
 
 import { should, ensuresException, getBlockNow } from './helpers/utils'
 import timer from './helpers/timer'
 
 const BigNumber = web3.BigNumber
 
-contract('TRIPCrowdsale', ([owner, wallet, buyer, buyer2, advisor1, advisor2]) => {
+contract('TRIPCrowdsale', ([owner, wallet, wallet2, buyer, buyer2, advisor1, advisor2]) => {
     const rate = new BigNumber(50)
     const newRate =  new BigNumber(172000000)
     const dayInSecs = 86400
     const value = new BigNumber(1e+18)
+    const crowdsaleHardCapInWei = new BigNumber(21e+18)
+    const crowdsaleSoftCapInWei = new BigNumber(5e+18)
+    const preSaleCapInWei = new BigNumber(3e+18)
 
     const expectedCompanyTokens = new BigNumber(20000000e+18)
     const expectedTokensAtVault = new BigNumber(80000000e+18)
 
     let startTime, presaleEndTime, endTime
     let crowdsale, token
-    let vaultContract
 
     const newCrowdsale = (rate) => {
         startTime = getBlockNow() + 20 // crowdsale starts in 20 seconds
@@ -30,7 +31,11 @@ contract('TRIPCrowdsale', ([owner, wallet, buyer, buyer2, advisor1, advisor2]) =
             presaleEndTime,
             endTime,
             rate,
-            wallet
+            crowdsaleHardCapInWei,
+            crowdsaleSoftCapInWei,
+            preSaleCapInWei,
+            wallet,
+            wallet2
         )
     }
 
@@ -46,7 +51,22 @@ contract('TRIPCrowdsale', ([owner, wallet, buyer, buyer2, advisor1, advisor2]) =
 
     it('starts with token paused', async () => {
         const paused = await token.paused()
-        paused.should.equal(true)
+        paused.should.be.true
+    })
+
+    it('has a hard cap', async () => {
+        const hardCap = await crowdsale.crowdsaleHardCapInWei()
+        hardCap.should.be.bignumber.equal(crowdsaleHardCapInWei)
+    })
+
+    it('has a soft cap', async () => {
+        const softCap = await crowdsale.crowdsaleSoftCapInWei()
+        softCap.should.be.bignumber.equal(crowdsaleSoftCapInWei)
+    })
+
+    it('has a pre sale cap', async () => {
+        const preSaleCap = await crowdsale.preSaleCapInWei()
+        preSaleCap.should.be.bignumber.equal(preSaleCapInWei)
     })
 
     describe('token purchases plus their bonuses', () => {
@@ -72,21 +92,55 @@ contract('TRIPCrowdsale', ([owner, wallet, buyer, buyer2, advisor1, advisor2]) =
             buyerBalance.should.be.bignumber.equal(50e+18)
         })
 
-        it('has bonus of 20% during the presale', async () => {
+        it('does not participate in presale if sending less than 20 ether', async () => {
             await timer(50) // within presale period
-            await crowdsale.buyTokens(buyer2, { value })
+            try {
+                await crowdsale.buyTokens(buyer2, { value })
+                assert.fail()
+            } catch (e) {
+                ensuresException(e)
+            }
 
             const buyerBalance = await token.balanceOf(buyer2)
-            buyerBalance.should.be.bignumber.equal(625e+17) // 25% bonus
+            buyerBalance.should.be.bignumber.equal(0)
+        })
+
+        it('has bonus of 2% during the presale', async () => {
+            await timer(50) // within presale period
+            await crowdsale.buyTokens(buyer2, { from: wallet2, value: 20e+18 })
+
+            const buyerBalance = await token.balanceOf(buyer2)
+            buyerBalance.should.be.bignumber.equal(1.02e+21) // 2% bonus
+        })
+
+        // for these tests to work need to start testrpc with many tokens for buyer.
+        it.skip('has bonus of 5% during the presale', async () => {
+            await timer(50) // within presale period
+            await crowdsale.buyTokens(buyer2, { value: 100e+18 })
+
+            const buyerBalance = await token.balanceOf(buyer2)
+            buyerBalance.should.be.bignumber.equal(500105e+18) // 5% bonus
+        })
+
+        it.skip('has bonus of 10% during the presale', async () => {
+            await timer(50) // within presale period
+            await crowdsale.buyTokens(buyer2, { value: 400 })
+
+            const buyerBalance = await token.balanceOf(buyer2)
+            buyerBalance.should.be.bignumber.equal(200011e+18) // 10% bonus
+        })
+        it.skip('has bonus of 15% during the presale', async () => {
+            await timer(50) // within presale period
+            await crowdsale.buyTokens(buyer2, { value: 1000 })
+
+            const buyerBalance = await token.balanceOf(buyer2)
+            buyerBalance.should.be.bignumber.equal(5000115e+18) // 15% bonus
         })
 
         it('stops presale once the presaleCap is reached', async () => {
-            const newRate = new BigNumber(73714286)
-            crowdsale = await newCrowdsale(newRate)
-            token = TRIPToken.at(await crowdsale.token())
             await timer(50) // within presale period
 
-            await crowdsale.buyTokens(buyer2, { value })
+            await crowdsale.buyTokens(buyer2, { from: wallet, value: 20e+18 })
 
             try {
                 await crowdsale.buyTokens(buyer, { value })
@@ -99,20 +153,36 @@ contract('TRIPCrowdsale', ([owner, wallet, buyer, buyer2, advisor1, advisor2]) =
             buyerBalance.should.be.bignumber.equal(0)
         })
 
-        it('is also able to buy tokens with bonus by sending ether to the contract directly', async () => {
-            await timer(50)
-            await crowdsale.sendTransaction({ from: buyer, value })
-
-            const purchaserBalance = await token.balanceOf(buyer)
-            purchaserBalance.should.be.bignumber.equal(625e+17) // 25% bonus
-        })
-
         it('provides 0% bonus during crowdsale period', async () => {
             timer(dayInSecs * 42)
             await crowdsale.buyTokens(buyer2, { value })
 
             const buyerBalance = await token.balanceOf(buyer2)
             buyerBalance.should.be.bignumber.equal(50e+18) // 0% bonus
+        })
+
+        it('is also able to buy tokens with bonus by sending ether to the contract directly', async () => {
+            await timer(dayInSecs * 42)
+            await crowdsale.sendTransaction({ from: buyer, value })
+
+            const purchaserBalance = await token.balanceOf(buyer)
+            purchaserBalance.should.be.bignumber.equal(50e+18)
+        })
+
+        it('stops crowdsale once the hardCap is reached', async () => {
+            await timer(dayInSecs * 42)
+
+            await crowdsale.buyTokens(buyer2, { from: advisor1, value: 21e+18 })
+
+            try {
+                await crowdsale.buyTokens(buyer, { from: advisor1, value })
+                assert.fail()
+            } catch (e) {
+                ensuresException(e)
+            }
+
+            const buyerBalance = await token.balanceOf(buyer)
+            buyerBalance.should.be.bignumber.equal(0)
         })
     })
 
@@ -139,82 +209,12 @@ contract('TRIPCrowdsale', ([owner, wallet, buyer, buyer2, advisor1, advisor2]) =
             let paused = await token.paused()
             paused.should.be.false
         })
-    })
 
-    describe('vault', function () {
-        beforeEach(async function () {
-            crowdsale = await newCrowdsale(newRate)
-            token = TRIPToken.at(await crowdsale.token())
-
-            await timer(50)
-
-            await crowdsale.buyTokens(buyer, {value})
-
-            timer(dayInSecs * 70)
-            await crowdsale.finalize()
-
-            const vault = await crowdsale.vault()
-            vaultContract = Vault.at(vault)
-        })
-
-        it('assigns tokens correctly to Vault contract', async function () {
-            const vaultAddress = await vaultContract.address
+        it('assigns tokens correctly to vault ', async function () {
+            const vaultAddress = await crowdsale.vault()
 
             const balance = await token.balanceOf(vaultAddress)
             balance.should.be.bignumber.equal(expectedTokensAtVault)
-        })
-
-
-        // it('does NOT unlock advisors allocation before the unlock period is up', async function () {
-        //     try {
-        //         await vaultContract.unlock({from: advisor1})
-        //         assert.fail()
-        //     } catch(e) {
-        //         ensuresException(e)
-        //     }
-        //
-        //     const tokensCreated = await vaultContract.tokensCreated()
-        //     tokensCreated.should.be.bignumber.equal(0)
-        // })
-        //
-        // it('unlocks advisors allocation after the unlock period is up', async function () {
-        //     let tokensCreated
-        //
-        //     tokensCreated = await vaultContract.tokensCreated()
-        //     tokensCreated.should.be.bignumber.equal(0)
-        //
-        //     await timer(dayInSecs * 190)
-        //
-        //     await vaultContract.unlock({from: owner})
-        //
-        //     const tokenBalanceOwner = await token.balanceOf(owner)
-        //     tokenBalanceOwner.should.be.bignumber.equal(expectedTokensAtVault)
-        // })
-
-        it('does NOT kill contract before one year is up', async function () {
-            try {
-                await vaultContract.kill()
-                assert.fail()
-            } catch(e) {
-                ensuresException(e)
-            }
-
-            const vaultAddress = await vaultContract.address
-            const balance = await token.balanceOf(vaultAddress)
-            balance.should.be.bignumber.equal(expectedTokensAtVault)
-        })
-
-        it('is able to kill contract after one year', async () => {
-            await timer(dayInSecs * 400) // 400 days after
-
-            await vaultContract.kill()
-
-            const vaultAddress = await vaultContract.address
-            const balance = await token.balanceOf(vaultAddress)
-            balance.should.be.bignumber.equal(0)
-
-            const balanceOwner = await token.balanceOf(owner)
-            balanceOwner.should.be.bignumber.equal(expectedTokensAtVault)
         })
     })
 })
