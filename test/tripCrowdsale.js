@@ -110,31 +110,32 @@ contract('TRIPCrowdsale', ([owner, wallet, wallet2, buyer, buyer2, advisor1, adv
             await crowdsale.buyTokens(buyer2, { from: wallet2, value: 20e+18 })
 
             const buyerBalance = await token.balanceOf(buyer2)
-            buyerBalance.should.be.bignumber.equal(1.02e+21) // 2% bonus
+            buyerBalance.should.be.bignumber.equal(1020e+18) // 2% bonus
         })
 
-        // for these tests to work need to start testrpc with many tokens for buyer.
+        // for these tests to work, testrpc needs to start with the option to assign a hell of alot of tokens for an address.
         it.skip('has bonus of 5% during the presale', async () => {
             await timer(50) // within presale period
             await crowdsale.buyTokens(buyer2, { value: 100e+18 })
 
             const buyerBalance = await token.balanceOf(buyer2)
-            buyerBalance.should.be.bignumber.equal(500105e+18) // 5% bonus
+            buyerBalance.should.be.bignumber.equal(5250e+18) // 5% bonus
         })
 
         it.skip('has bonus of 10% during the presale', async () => {
             await timer(50) // within presale period
-            await crowdsale.buyTokens(buyer2, { value: 400 })
+            await crowdsale.buyTokens(buyer2, { value: 400e+18 })
 
             const buyerBalance = await token.balanceOf(buyer2)
-            buyerBalance.should.be.bignumber.equal(200011e+18) // 10% bonus
+            buyerBalance.should.be.bignumber.equal(22000e+18) // 10% bonus
         })
+
         it.skip('has bonus of 15% during the presale', async () => {
             await timer(50) // within presale period
-            await crowdsale.buyTokens(buyer2, { value: 1000 })
+            await crowdsale.buyTokens(buyer2, { value: 1000e+18 })
 
             const buyerBalance = await token.balanceOf(buyer2)
-            buyerBalance.should.be.bignumber.equal(5000115e+18) // 15% bonus
+            buyerBalance.should.be.bignumber.equal(57500e+18) // 15% bonus
         })
 
         it('stops presale once the presaleCap is reached', async () => {
