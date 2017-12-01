@@ -1,7 +1,7 @@
 const TRIPCrowdsale = artifacts.require("./TRIPCrowdsale.sol");
 const TRIPToken = artifacts.require("./TRIPToken.sol");
 
-import { should, ensuresException, getBlockNow } from './helpers/utils'
+import { should, ensuresException, getBlockNow, assertRevert } from './helpers/utils'
 import timer from './helpers/timer'
 
 const BigNumber = web3.BigNumber
@@ -11,9 +11,9 @@ contract('TRIPCrowdsale', ([owner, wallet, wallet2, buyer, buyer2, advisor1, adv
     const newRate =  new BigNumber(172000000)
     const dayInSecs = 86400
     const value = new BigNumber(1e+18)
-    const crowdsaleHardCapInWei = new BigNumber(21e+18)
-    const crowdsaleSoftCapInWei = new BigNumber(5e+18)
-    const preSaleCapInWei = new BigNumber(3e+18)
+    const crowdsaleHardCapInWei = new BigNumber(1005e+18)
+    const crowdsaleSoftCapInWei = new BigNumber(50e+18)
+    const preSaleCapInWei = new BigNumber(1002e+18)
 
     const expectedCompanyTokens = new BigNumber(20000000e+18)
     const expectedTokensAtVault = new BigNumber(80000000e+18)
@@ -79,7 +79,7 @@ contract('TRIPCrowdsale', ([owner, wallet, wallet2, buyer, buyer2, advisor1, adv
                 await crowdsale.buyTokens(buyer, { value })
                 assert.fail()
             } catch(e) {
-                ensuresException(e)
+                assertRevert(e)
             }
 
             buyerBalance = await token.balanceOf(buyer)
@@ -113,8 +113,7 @@ contract('TRIPCrowdsale', ([owner, wallet, wallet2, buyer, buyer2, advisor1, adv
             buyerBalance.should.be.bignumber.equal(1020e+18) // 2% bonus
         })
 
-        // for these tests to work, testrpc needs to start with the option to assign a hell of alot of tokens for an address.
-        it.skip('has bonus of 5% during the presale', async () => {
+        it('has bonus of 5% during the presale', async () => {
             await timer(50) // within presale period
             await crowdsale.buyTokens(buyer2, { value: 100e+18 })
 
@@ -122,7 +121,7 @@ contract('TRIPCrowdsale', ([owner, wallet, wallet2, buyer, buyer2, advisor1, adv
             buyerBalance.should.be.bignumber.equal(5250e+18) // 5% bonus
         })
 
-        it.skip('has bonus of 10% during the presale', async () => {
+        it('has bonus of 10% during the presale', async () => {
             await timer(50) // within presale period
             await crowdsale.buyTokens(buyer2, { value: 400e+18 })
 
@@ -130,7 +129,7 @@ contract('TRIPCrowdsale', ([owner, wallet, wallet2, buyer, buyer2, advisor1, adv
             buyerBalance.should.be.bignumber.equal(22000e+18) // 10% bonus
         })
 
-        it.skip('has bonus of 15% during the presale', async () => {
+        it('has bonus of 15% during the presale', async () => {
             await timer(50) // within presale period
             await crowdsale.buyTokens(buyer2, { value: 1000e+18 })
 
@@ -183,7 +182,7 @@ contract('TRIPCrowdsale', ([owner, wallet, wallet2, buyer, buyer2, advisor1, adv
             }
 
             const buyer2Balance = await token.balanceOf(buyer2)
-            buyer2Balance.should.be.bignumber.equal(1050e+18)
+            buyer2Balance.should.be.bignumber.equal(50250e+18)
 
             const buyerBalance = await token.balanceOf(buyer)
             buyerBalance.should.be.bignumber.equal(0)
@@ -202,7 +201,7 @@ contract('TRIPCrowdsale', ([owner, wallet, wallet2, buyer, buyer2, advisor1, adv
             }
 
             const buyer2Balance = await token.balanceOf(buyer2)
-            buyer2Balance.should.be.bignumber.equal(250e+18)
+            buyer2Balance.should.be.bignumber.equal(2.5e+21)
 
             const buyerBalance = await token.balanceOf(buyer)
             buyerBalance.should.be.bignumber.equal(0)
@@ -215,7 +214,7 @@ contract('TRIPCrowdsale', ([owner, wallet, wallet2, buyer, buyer2, advisor1, adv
             await crowdsale.buyTokens(buyer, { from: advisor2, value })
 
             const buyer2Balance = await token.balanceOf(buyer2)
-            buyer2Balance.should.be.bignumber.equal(250e+18)
+            buyer2Balance.should.be.bignumber.equal(2.5e+21)
 
             const buyerBalance = await token.balanceOf(buyer)
             buyerBalance.should.be.bignumber.equal(50e+18)
