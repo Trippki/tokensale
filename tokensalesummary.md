@@ -1,5 +1,5 @@
 ## **TRIP Token Sale Summary **
-***human readable***
+***human readable!***
 
 This document explains the distribution of TRIP and the details of the token sale.
 
