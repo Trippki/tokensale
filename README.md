@@ -1,7 +1,7 @@
 # **TRIP Token And Crowdsale Smart Contracts**
 
 This document is subject to small changes. These changes will not affect maximum cap.
-Last edit Nov the 14th. Due to a change in development road map the token distribution campaign has been postponed till the release of an MVP in 2018. New dates TBA
+Due to a change in development road map the token distribution campaign has been postponed till the release of an MVP in 2018. New dates TBA
 
 ## Development
 
