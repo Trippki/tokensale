@@ -7,6 +7,7 @@ import "zeppelin-solidity/contracts/token/PausableToken.sol";
  * @title TRIP Token contract - ERC20 compatible token contract.
  * @author Gustavo Guimaraes - <gustavoguimaraes@gmail.com>
  */
+ 
 contract TRIPToken is PausableToken, MintableToken {
     string public constant name = "Trippki Token";
     string public constant symbol = "TRIP";
