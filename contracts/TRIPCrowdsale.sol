@@ -17,13 +17,16 @@ contract TRIPCrowdsale is FinalizableCrowdsale, Pausable {
     uint256 public crowdsaleEndsFromReachingSoftCap;
 
     // token figures
-    uint256 constant public TOTAL_SUPPLY_CROWDSALE = 80000000e18;
-    uint256 public constant COMPANY_SHARE = 20000000e18; // 10% to company
-    uint256 public constant VAULT_SHARE = 80000000e18;
+    uint256 public constant TOTAL_TOKEN_SUPPLY = 200000000e18;
+    uint256 public constant TOTAL_SUPPLY_CROWDSALE = 80000000e18; // 40%
+    uint256 public constant VAULT_SHARE = 80000000e18; // 40 %
+    uint256 public constant COMPANY_SHARE = 20000000e18; // 10%
+    uint256 public constant BOUNTY_SHARE = 20000000e18; // 10%
 
     uint256 public presaleEndTime;
 
     address public vault;
+    address public bountyWallet;
 
     /**
      * @dev Contract constructor function
@@ -46,6 +49,7 @@ contract TRIPCrowdsale is FinalizableCrowdsale, Pausable {
             uint256 _crowdsaleSoftCapInWei,
             uint256 _preSaleCapInWei,
             address _wallet,
+            address _bountyWallet,
             address _vault
         )
         public
@@ -58,6 +62,7 @@ contract TRIPCrowdsale is FinalizableCrowdsale, Pausable {
         crowdsaleHardCapInWei = _crowdsaleHardCapInWei;
         crowdsaleSoftCapInWei = _crowdsaleSoftCapInWei;
         preSaleCapInWei = _preSaleCapInWei;
+        bountyWallet = _bountyWallet;
         vault = _vault;
 
         TRIPToken(token).pause();
@@ -129,10 +134,12 @@ contract TRIPCrowdsale is FinalizableCrowdsale, Pausable {
      */
     function finalization() internal {
         token.mint(wallet, COMPANY_SHARE);
+        token.mint(bountyWallet, BOUNTY_SHARE);
         token.mint(vault, VAULT_SHARE);
+        uint256 tokenSupply = token.totalSupply();
 
-        if (token.totalSupply() < TOTAL_SUPPLY_CROWDSALE) {
-            uint256 remainingTokens = token.totalSupply().sub(TOTAL_SUPPLY_CROWDSALE);
+        if (tokenSupply < TOTAL_TOKEN_SUPPLY) {
+            uint256 remainingTokens = TOTAL_TOKEN_SUPPLY.sub(tokenSupply);
 
             token.mint(vault, remainingTokens);
         }

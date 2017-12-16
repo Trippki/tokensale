@@ -11,7 +11,7 @@ const crowdsaleHardCapInWei = new BigNumber(36000e+18)
 const crowdsaleSoftCapInWei = new BigNumber(26000e+18)
 const preSaleCapInWei = new BigNumber(18000e+18)
 
-module.exports = function(deployer, network, [_, wallet, wallet2]) {
+module.exports = function(deployer, network, [_, wallet, wallet2, wallet3]) {
     if(network == 'rinkeby' || network == 'testnet') {
         deployer.deploy(
             TRIPCrowdsale,
@@ -23,7 +23,8 @@ module.exports = function(deployer, network, [_, wallet, wallet2]) {
             crowdsaleSoftCapInWei,
             preSaleCapInWei,
             wallet,
-            wallet2
+            wallet2,
+            wallet3
         );
     } else {
         // token deployed only for testing purposes. NOTE: dont use it for the mainnet.
@@ -39,7 +40,8 @@ module.exports = function(deployer, network, [_, wallet, wallet2]) {
             crowdsaleSoftCapInWei,
             preSaleCapInWei,
             wallet,
-            wallet2
+            wallet2,
+            wallet3
         );
     }
 };
