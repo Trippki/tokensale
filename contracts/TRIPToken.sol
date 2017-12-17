@@ -7,7 +7,7 @@ import "zeppelin-solidity/contracts/token/PausableToken.sol";
  * @title TRIP Token contract - ERC20 compatible token contract.
  * @author Gustavo Guimaraes - <gustavoguimaraes@gmail.com>
  */
- 
+
 contract TRIPToken is PausableToken, MintableToken {
     string public constant name = "Trippki Token";
     string public constant symbol = "TRIP";
@@ -19,9 +19,7 @@ contract TRIPToken is PausableToken, MintableToken {
      * @dev Burns a specific amount of tokens.
      * @param _value The amount of token to be burned.
      */
-    function burn(uint256 _value) public {
-        require(_value > 0);
-
+    function burn(uint256 _value) external {
         address burner = msg.sender;
         balances[burner] = balances[burner].sub(_value);
         totalSupply = totalSupply.sub(_value);

@@ -1,4 +1,4 @@
-pragma solidity ^0.4.18;
+pragma solidity 0.4.18;
 
 import "zeppelin-solidity/contracts/crowdsale/FinalizableCrowdsale.sol";
 import "zeppelin-solidity/contracts/lifecycle/Pausable.sol";
@@ -32,7 +32,7 @@ contract TRIPCrowdsale is FinalizableCrowdsale, Pausable {
      * @dev Contract constructor function
      * @param _startTime The timestamp of the beginning of the crowdsale
      * @param _endTime Timestamp when the crowdsale will finish
-     * @param _rate The token rate per ETH
+     * @param _rate The rate per token fraction
      * @param _crowdsaleHardCapInWei max amount of wei to raise in the crowdsale
      * @param _crowdsaleSoftCapInWei min amount of wei to raise during crowdsale
      * @param _preSaleCapInWei max amount of wei for presale period
@@ -78,7 +78,7 @@ contract TRIPCrowdsale is FinalizableCrowdsale, Pausable {
         payable
     {
         require(beneficiary != address(0));
-        require(validPurchase() && token.totalSupply() <= TOTAL_SUPPLY_CROWDSALE);
+        require(validPurchase() && token.totalSupply() < TOTAL_SUPPLY_CROWDSALE);
 
         if (now >= startTime && now <= presaleEndTime)
             require(checkPreSaleCap());
@@ -121,6 +121,7 @@ contract TRIPCrowdsale is FinalizableCrowdsale, Pausable {
     // overriding Crowdsale#validPurchase to add extra cap logic
     // @return true if investors can buy at the moment
     function validPurchase() internal view returns (bool) {
+        require(msg.value != 0);
         bool withinCap = weiRaised.add(msg.value) <= crowdsaleHardCapInWei;
 
         if (crowdsaleEndsFromReachingSoftCap > 0)
@@ -160,7 +161,7 @@ contract TRIPCrowdsale is FinalizableCrowdsale, Pausable {
      * @dev checks whether it is pre sale and if there is minimum purchase requirement
      * @return truthy if token total supply is less or equal than preSaleCapInWei
      */
-    function checkPreSaleCap() internal view returns (bool) {
+    function checkPreSaleCap() internal returns (bool) {
         return weiRaised <= preSaleCapInWei;
     }
 
