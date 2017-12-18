@@ -145,6 +145,7 @@ contract TRIPCrowdsale is FinalizableCrowdsale, Pausable {
             token.mint(vault, remainingTokens);
         }
 
+        token.finishMinting();
         TRIPToken(token).unpause();
 
         super.finalization();

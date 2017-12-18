@@ -273,6 +273,11 @@ contract('TRIPCrowdsale', ([owner, wallet, wallet2, wallet3, buyer, buyer2, advi
       balanceBounty.should.be.bignumber.equal(expectedBountyTokens)
     })
 
+    it.only('finishes token minting', async function() {
+      let finishMinting = await token.mintingFinished()
+      finishMinting.should.be.true
+    })
+
     it('token is unpaused after crowdsale ends', async function() {
       let paused = await token.paused()
       paused.should.be.false
