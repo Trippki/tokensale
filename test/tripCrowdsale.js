@@ -8,7 +8,7 @@ const BigNumber = web3.BigNumber
 
 contract('TRIPCrowdsale', ([owner, wallet, wallet2, wallet3, buyer, buyer2, advisor1, advisor2]) => {
   const rate = new BigNumber(50)
-  const newRate = new BigNumber(172000000)
+  const newRate = new BigNumber(70000000)
   const dayInSecs = 86400
   const value = new BigNumber(1e18)
   const crowdsaleHardCapInWei = new BigNumber(1005e18)
@@ -73,8 +73,7 @@ contract('TRIPCrowdsale', ([owner, wallet, wallet2, wallet3, buyer, buyer2, advi
   })
 
   it('assigns remaining tokens to vault if not all tokens are sold during crowdsale', async function() {
-    const fictiousRate = new BigNumber(70000000)
-    crowdsale = await newCrowdsale(fictiousRate)
+    crowdsale = await newCrowdsale(newRate) // 70M
     token = TRIPToken.at(await crowdsale.token())
     const vaultAddress = await crowdsale.vault()
 
@@ -249,7 +248,8 @@ contract('TRIPCrowdsale', ([owner, wallet, wallet2, wallet3, buyer, buyer2, advi
 
   describe('crowdsale finalization', function () {
     beforeEach(async function() {
-      crowdsale = await newCrowdsale(newRate)
+      const rateThatReachesCrowdsaleTokenSupply = new BigNumber(80000000)
+      crowdsale = await newCrowdsale(rateThatReachesCrowdsaleTokenSupply)
       token = TRIPToken.at(await crowdsale.token())
 
       await timer(dayInSecs * 42)
@@ -273,8 +273,8 @@ contract('TRIPCrowdsale', ([owner, wallet, wallet2, wallet3, buyer, buyer2, advi
       balanceBounty.should.be.bignumber.equal(expectedBountyTokens)
     })
 
-    it.only('finishes token minting', async function() {
-      let finishMinting = await token.mintingFinished()
+    it('finishes token minting', async function() {
+      const finishMinting = await token.mintingFinished()
       finishMinting.should.be.true
     })
 
@@ -288,6 +288,35 @@ contract('TRIPCrowdsale', ([owner, wallet, wallet2, wallet3, buyer, buyer2, advi
 
       const balance = await token.balanceOf(vaultAddress)
       balance.should.be.bignumber.equal(expectedTokensAtVault)
+    })
+  })
+
+  describe('remainder', function () {
+    beforeEach(async function() {
+      crowdsale = await newCrowdsale(newRate) // 70M
+      token = TRIPToken.at(await crowdsale.token())
+
+      await timer(dayInSecs * 42)
+
+      await crowdsale.buyTokens(buyer, { value }) // purchase the first 70M tokens
+    })
+
+    it('sells up to token supply for the crowdsale', async function() {
+      await crowdsale.buyTokens(buyer2, { from: wallet2, value })
+
+      const buyerBalance = await token.balanceOf(buyer2)
+      buyerBalance.should.be.bignumber.equal(10000000e18) // 10M which was left for the token sale after the first purchase
+    })
+
+    it('sends back wei remainder to sender when token purchases goes over token supply for crowdsale', async function() {
+      const walletBalance = web3.eth.getBalance(wallet2).toNumber()
+      await crowdsale.buyTokens(buyer2, { from: wallet2, value })
+
+      const purchaseofTokensInWei = 10000000e18 / newRate // number of tokens
+      const estimatedWalletBalanceAfterPurchasingTokens = walletBalance - purchaseofTokensInWei
+
+      const walletBalancePostTokenPurchase = web3.eth.getBalance(wallet2).toNumber()
+      walletBalancePostTokenPurchase.should.be.approximately(estimatedWalletBalanceAfterPurchasingTokens, 1e16)
     })
   })
 })

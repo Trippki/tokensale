@@ -78,7 +78,8 @@ contract TRIPCrowdsale is FinalizableCrowdsale, Pausable {
         payable
     {
         require(beneficiary != address(0));
-        require(validPurchase() && token.totalSupply() < TOTAL_SUPPLY_CROWDSALE);
+        uint256 currentTokenSupply = token.totalSupply();
+        require(validPurchase() && currentTokenSupply < TOTAL_SUPPLY_CROWDSALE);
 
         if (now >= startTime && now <= presaleEndTime)
             require(checkPreSaleCap());
@@ -95,6 +96,15 @@ contract TRIPCrowdsale is FinalizableCrowdsale, Pausable {
             tokens = tokens.add(tokensIncludingBonus);
         }
 
+        // remainder logic.
+        if (currentTokenSupply.add(tokens) > TOTAL_SUPPLY_CROWDSALE) {
+            uint256 tokenDifference = currentTokenSupply.add(tokens).sub(TOTAL_SUPPLY_CROWDSALE);
+            uint256 weiAmountToReturn = tokenDifference.div(rate);
+            weiAmount = weiAmount.sub(weiAmountToReturn);
+            tokens = TOTAL_SUPPLY_CROWDSALE.sub(currentTokenSupply);
+            msg.sender.transfer(weiAmountToReturn);
+        }
+
         // update state
         weiRaised = weiRaised.add(weiAmount);
 
@@ -105,7 +115,12 @@ contract TRIPCrowdsale is FinalizableCrowdsale, Pausable {
 
         TokenPurchase(msg.sender, beneficiary, weiAmount, tokens);
 
-        forwardFunds();
+        forwardFunds(weiAmount);
+    }
+
+    // overriding Crowdsale#forwardFunds to accomodate remainder logic
+    function forwardFunds(uint256 weiAmount) internal {
+        wallet.transfer(weiAmount);
     }
 
     // overriding Crowdsale#hasEnded to add cap logic
