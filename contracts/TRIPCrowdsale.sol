@@ -25,6 +25,9 @@ contract TRIPCrowdsale is FinalizableCrowdsale, Pausable {
 
     uint256 public presaleEndTime;
 
+    address public remainderPuchaser;
+    uint256 public remainderAmount;
+
     address public vault;
     address public bountyWallet;
 
@@ -69,6 +72,15 @@ contract TRIPCrowdsale is FinalizableCrowdsale, Pausable {
     }
 
     /**
+     * @dev withdraw purchase remainder only allowed by owner with Checks-Effects-Interactions pattern
+     */
+    function withdrawRemainder() public onlyOwner {
+        uint256 remainder = remainderAmount;
+        remainderAmount = 0;
+        remainderPuchaser.transfer(remainder);
+    }
+
+    /**
      * @dev payable function that allow token purchases
      * @param beneficiary Address of the purchaser
      */
@@ -102,7 +114,8 @@ contract TRIPCrowdsale is FinalizableCrowdsale, Pausable {
             uint256 weiAmountToReturn = tokenDifference.div(rate);
             weiAmount = weiAmount.sub(weiAmountToReturn);
             tokens = TOTAL_SUPPLY_CROWDSALE.sub(currentTokenSupply);
-            msg.sender.transfer(weiAmountToReturn);
+            remainderPuchaser = msg.sender;
+            remainderAmount = weiAmountToReturn;
         }
 
         // update state
@@ -126,10 +139,11 @@ contract TRIPCrowdsale is FinalizableCrowdsale, Pausable {
     // overriding Crowdsale#hasEnded to add cap logic
     // @return true if crowdsale event has ended
     function hasEnded() public view returns (bool) {
-        if (crowdsaleEndsFromReachingSoftCap > 0)
+        bool capReached = weiRaised >= crowdsaleHardCapInWei;
+
+        if (crowdsaleEndsFromReachingSoftCap > 0 && !capReached)
             return now >= crowdsaleEndsFromReachingSoftCap;
 
-        bool capReached = weiRaised >= crowdsaleHardCapInWei;
         return super.hasEnded() || capReached;
     }
 
@@ -185,7 +199,7 @@ contract TRIPCrowdsale is FinalizableCrowdsale, Pausable {
      * @dev calculates pre sale bonus tier
      * @return bonus percentage as uint
      */
-    function calculatePreSaleBonus() internal returns (uint256) {
+    function calculatePreSaleBonus() internal view returns (uint256) {
         require(msg.value >= 20 ether);
         /*
          Pre-sale bonuses**
@@ -212,7 +226,7 @@ contract TRIPCrowdsale is FinalizableCrowdsale, Pausable {
      * @dev Fetches Bonus tier percentage per bonus milestones
      * @return uint256 representing percentage of the bonus tier
      */
-    function getBonusTier() internal returns (uint256) {
+    function getBonusTier() internal view returns (uint256) {
         bool preSalePeriod = now >= startTime && now <= presaleEndTime;
         bool crowdsalePeriod = now > presaleEndTime;
 

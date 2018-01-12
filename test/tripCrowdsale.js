@@ -308,15 +308,23 @@ contract('TRIPCrowdsale', ([owner, wallet, wallet2, wallet3, buyer, buyer2, advi
       buyerBalance.should.be.bignumber.equal(10000000e18) // 10M which was left for the token sale after the first purchase
     })
 
-    it('sends back wei remainder to sender when token purchases goes over token supply for crowdsale', async function() {
+    it('allows withdraw of remainder to sender when token purchases goes over token supply for crowdsale', async function() {
       const walletBalance = web3.eth.getBalance(wallet2).toNumber()
       await crowdsale.buyTokens(buyer2, { from: wallet2, value })
 
-      const purchaseofTokensInWei = 10000000e18 / newRate // number of tokens
-      const estimatedWalletBalanceAfterPurchasingTokens = walletBalance - purchaseofTokensInWei
+      const actualPurchaseInWei = 10000000e18 / newRate
+      const calculatedRemainder = value.toNumber() - actualPurchaseInWei
 
-      const walletBalancePostTokenPurchase = web3.eth.getBalance(wallet2).toNumber()
-      walletBalancePostTokenPurchase.should.be.approximately(estimatedWalletBalanceAfterPurchasingTokens, 1e16)
+      const remainderPuchaser = await crowdsale.remainderPuchaser()
+      remainderPuchaser.should.equal(wallet2)
+
+      const remainder = await crowdsale.remainderAmount()
+      remainder.toNumber().should.be.equal(calculatedRemainder)
+
+      await crowdsale.withdrawRemainder({ from: owner })
+
+      const newRemainder = await crowdsale.remainderAmount()
+      newRemainder.toNumber().should.be.equal(0)
     })
   })
 })
