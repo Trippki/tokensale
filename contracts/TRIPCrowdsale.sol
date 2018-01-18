@@ -25,9 +25,9 @@ contract TRIPCrowdsale is FinalizableCrowdsale, Pausable {
 
     uint256 public presaleEndTime;
 
-    // remainderPuchaser and remainderTokens info saved in the contract
+    // remainderPurchaser and remainderTokens info saved in the contract
     // used for reference by contract owner
-    address public remainderPuchaser;
+    address public remainderPurchaser;
     uint256 public remainderAmount;
 
     address public vault;
@@ -107,7 +107,7 @@ contract TRIPCrowdsale is FinalizableCrowdsale, Pausable {
             uint256 weiAmountToReturn = tokenDifference.div(rate);
             weiAmount = weiAmount.sub(weiAmountToReturn);
             tokens = TOTAL_SUPPLY_CROWDSALE.sub(currentTokenSupply);
-            remainderPuchaser = msg.sender;
+            remainderPurchaser = msg.sender;
             remainderAmount = weiAmountToReturn;
         }
 

@@ -338,8 +338,8 @@ contract('TRIPCrowdsale', ([owner, wallet, wallet2, wallet3, buyer, buyer2, advi
       const actualPurchaseInWei = 10000000e18 / newRate
       const calculatedRemainder = value.toNumber() - actualPurchaseInWei
 
-      const remainderPuchaser = await crowdsale.remainderPuchaser()
-      remainderPuchaser.should.equal(wallet2)
+      const remainderPurchaser = await crowdsale.remainderPurchaser()
+      remainderPurchaser.should.equal(wallet2)
 
       const remainder = await crowdsale.remainderAmount()
       remainder.toNumber().should.be.equal(calculatedRemainder)
