@@ -25,6 +25,8 @@ contract TRIPCrowdsale is FinalizableCrowdsale, Pausable {
 
     uint256 public presaleEndTime;
 
+    // remainderPuchaser and remainderTokens info saved in the contract
+    // used for reference by contract owner
     address public remainderPuchaser;
     uint256 public remainderAmount;
 
@@ -69,15 +71,6 @@ contract TRIPCrowdsale is FinalizableCrowdsale, Pausable {
         vault = _vault;
 
         TRIPToken(token).pause();
-    }
-
-    /**
-     * @dev withdraw purchase remainder only allowed by owner with Checks-Effects-Interactions pattern
-     */
-    function withdrawRemainder() public onlyOwner {
-        uint256 remainder = remainderAmount;
-        remainderAmount = 0;
-        remainderPuchaser.transfer(remainder);
     }
 
     /**

@@ -232,6 +232,29 @@ contract('TRIPCrowdsale', ([owner, wallet, wallet2, wallet3, buyer, buyer2, advi
       buyerBalance.should.be.bignumber.equal(0)
     })
 
+    it('stops crowdsale 48 hours after reached softCap even though endTime has been reached', async () => {
+      await timer(dayInSecs * 59)
+      await crowdsale.buyTokens(buyer2, { from: advisor2, value: crowdsaleSoftCapInWei })
+      await timer(dayInSecs * 2) // moves two day
+
+      await crowdsale.buyTokens(advisor2, { from: advisor2, value })
+
+      await timer(dayInSecs * 2) // two more days
+
+      try {
+        await crowdsale.buyTokens(buyer, { from: advisor2, value })
+        assert.fail()
+      } catch (e) {
+        ensuresException(e)
+      }
+
+      const buyer2Balance = await token.balanceOf(buyer2)
+      buyer2Balance.should.be.bignumber.equal(2.5e21)
+
+      const buyerBalance = await token.balanceOf(buyer)
+      buyerBalance.should.be.bignumber.equal(0)
+    })
+
     it('is able to buy tokens within 48 hours after the softCap is reached', async () => {
       await timer(dayInSecs * 42)
       await crowdsale.buyTokens(buyer2, { from: advisor2, value: crowdsaleSoftCapInWei })
@@ -308,7 +331,7 @@ contract('TRIPCrowdsale', ([owner, wallet, wallet2, wallet3, buyer, buyer2, advi
       buyerBalance.should.be.bignumber.equal(10000000e18) // 10M which was left for the token sale after the first purchase
     })
 
-    it('allows withdraw of remainder to sender when token purchases goes over token supply for crowdsale', async function() {
+    it('saves remainder data to sender when token purchases goes over token supply for crowdsale', async function() {
       const walletBalance = web3.eth.getBalance(wallet2).toNumber()
       await crowdsale.buyTokens(buyer2, { from: wallet2, value })
 
@@ -320,11 +343,6 @@ contract('TRIPCrowdsale', ([owner, wallet, wallet2, wallet3, buyer, buyer2, advi
 
       const remainder = await crowdsale.remainderAmount()
       remainder.toNumber().should.be.equal(calculatedRemainder)
-
-      await crowdsale.withdrawRemainder({ from: owner })
-
-      const newRemainder = await crowdsale.remainderAmount()
-      newRemainder.toNumber().should.be.equal(0)
     })
   })
 })
