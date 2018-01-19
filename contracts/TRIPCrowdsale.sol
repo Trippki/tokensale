@@ -105,7 +105,6 @@ contract TRIPCrowdsale is FinalizableCrowdsale, Pausable {
         if (currentTokenSupply.add(tokens) > TOTAL_SUPPLY_CROWDSALE) {
             uint256 tokenDifference = currentTokenSupply.add(tokens).sub(TOTAL_SUPPLY_CROWDSALE);
             uint256 weiAmountToReturn = tokenDifference.div(rate);
-            weiAmount = weiAmount.sub(weiAmountToReturn);
             tokens = TOTAL_SUPPLY_CROWDSALE.sub(currentTokenSupply);
             remainderPurchaser = msg.sender;
             remainderAmount = weiAmountToReturn;
