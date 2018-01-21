@@ -343,7 +343,7 @@ contract('TRIPCrowdsale', ([owner, wallet, wallet2, wallet3, buyer, buyer2, advi
 
       const remainder = await crowdsale.remainderAmount()
       remainder.toNumber().should.be.equal(calculatedRemainder)
-      
+
       const contractBalance = web3.eth.getBalance(crowdsale.address).toNumber()
       contractBalance.should.be.equal(0)
     })

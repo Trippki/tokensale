@@ -120,12 +120,7 @@ contract TRIPCrowdsale is FinalizableCrowdsale, Pausable {
 
         TokenPurchase(msg.sender, beneficiary, weiAmount, tokens);
 
-        forwardFunds(weiAmount);
-    }
-
-    // overriding Crowdsale#forwardFunds to accomodate remainder logic
-    function forwardFunds(uint256 weiAmount) internal {
-        wallet.transfer(weiAmount);
+        forwardFunds();
     }
 
     // overriding Crowdsale#hasEnded to add cap logic
