@@ -128,10 +128,14 @@ contract TRIPCrowdsale is FinalizableCrowdsale, Pausable {
     function hasEnded() public view returns (bool) {
         bool capReached = weiRaised >= crowdsaleHardCapInWei;
 
-        if (crowdsaleEndsFromReachingSoftCap > 0 && !capReached)
+        if (capReached || token.totalSupply() >= TOTAL_SUPPLY_CROWDSALE) {
+            return true;
+        }
+
+        if (crowdsaleEndsFromReachingSoftCap > 0)
             return now >= crowdsaleEndsFromReachingSoftCap;
 
-        return super.hasEnded() || capReached;
+        return super.hasEnded();
     }
 
     // overriding Crowdsale#validPurchase to add extra cap logic

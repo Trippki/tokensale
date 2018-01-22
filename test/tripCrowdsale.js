@@ -279,7 +279,7 @@ contract('TRIPCrowdsale', ([owner, wallet, wallet2, wallet3, buyer, buyer2, advi
 
       await crowdsale.buyTokens(buyer, { value })
 
-      await timer(dayInSecs * 20)
+      // is able to finizale crowdsale when token supply is reached
       await crowdsale.finalize()
     })
 
