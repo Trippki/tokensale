@@ -73,6 +73,18 @@ contract TRIPCrowdsale is FinalizableCrowdsale, Pausable {
         TRIPToken(token).pause();
     }
 
+    modifier isNotContract() {
+        uint256 size;
+        address addr;
+
+        assembly { size := extcodesize(addr) }
+        // contract address has extcodesize opcode
+        // the exeption happens on contruct function call
+        // hence also the check that the message sender should be the same as the transaction originator
+        require(size == 0 && msg.sender == tx.origin);
+        _;
+    }
+
     /**
      * @dev payable function that allow token purchases
      * @param beneficiary Address of the purchaser
@@ -80,6 +92,7 @@ contract TRIPCrowdsale is FinalizableCrowdsale, Pausable {
     function buyTokens(address beneficiary)
         public
         whenNotPaused
+        isNotContract
         payable
     {
         require(beneficiary != address(0));

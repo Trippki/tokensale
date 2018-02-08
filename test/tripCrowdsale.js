@@ -1,5 +1,6 @@
 const TRIPCrowdsale = artifacts.require('./TRIPCrowdsale.sol')
 const TRIPToken = artifacts.require('./TRIPToken.sol')
+const CrowdsaleProxy = artifacts.require('./CrowdsaleProxy.sol')
 
 import { should, ensuresException, getBlockNow, assertRevert } from './helpers/utils'
 import timer from './helpers/timer'
@@ -21,7 +22,7 @@ contract('TRIPCrowdsale', ([owner, wallet, wallet2, wallet3, buyer, buyer2, advi
   const expectedTokensAtVault = new BigNumber(80000000e18)
 
   let startTime, presaleEndTime, endTime
-  let crowdsale, token
+  let crowdsale, token, crowdsaleProxy
 
   const newCrowdsale = rate => {
     startTime = getBlockNow() + 20 // crowdsale starts in 20 seconds
@@ -45,6 +46,7 @@ contract('TRIPCrowdsale', ([owner, wallet, wallet2, wallet3, buyer, buyer2, advi
   beforeEach('initialize contract', async () => {
     crowdsale = await newCrowdsale(rate)
     token = TRIPToken.at(await crowdsale.token())
+    crowdsaleProxy = await CrowdsaleProxy.new(crowdsale.address)
   })
 
   it('has a normal crowdsale rate', async () => {
@@ -121,6 +123,20 @@ contract('TRIPCrowdsale', ([owner, wallet, wallet2, wallet3, buyer, buyer2, advi
       await timer(50) // within presale period
       try {
         await crowdsale.buyTokens(buyer2, { value })
+        assert.fail()
+      } catch (e) {
+        ensuresException(e)
+      }
+
+      const buyerBalance = await token.balanceOf(buyer2)
+      buyerBalance.should.be.bignumber.equal(0)
+    })
+
+    it('cannot participate when it is a contract calling the buyTokens function', async () => {
+      await timer(3000)
+
+      try {
+        await crowdsaleProxy.buyTokensProxy(buyer2, { from: buyer2, value })
         assert.fail()
       } catch (e) {
         ensuresException(e)
