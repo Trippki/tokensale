@@ -75,11 +75,11 @@ contract TRIPCrowdsale is FinalizableCrowdsale, Pausable {
 
     modifier isNotContract() {
         uint256 size;
-        address addr;
+        address addr = msg.sender;
 
         assembly { size := extcodesize(addr) }
         // contract address has extcodesize opcode
-        // the exeption happens on contruct function call
+        // the exception happens on the construct function call
         // hence also the check that the message sender should be the same as the transaction originator
         require(size == 0 && msg.sender == tx.origin);
         _;
