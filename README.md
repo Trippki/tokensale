@@ -70,7 +70,7 @@ This document explains the distribution of TRIP and the details of the token sal
 
 * Ends in 14 days or when the hard cap is reached
 
-* Hard cap of 36,000\* ETH. Soft cap 26,000\*\* ETH
+* Hard cap of $15m \ ETH. Soft cap $4m \*\* ETH
 
 * No minimum cap
 
@@ -107,14 +107,14 @@ It is an Ethereum based token implemented as ERC20 and is the functional token o
 The pre-sale will have a maintained whitelist of Ethereum addresses, ensuring that buyers are guaranteed to get their tokens and bonus. Pre-sale is capped at 18,000 ETH (half of the value of the hard cap). The minimum contribution is 20 ETH for the Pre-sale.
 
 **Pre-sale bonuses**
+* TBA
+* 
 
-* 2%: 20 ETH - 99 ETH
+* 
 
-* 5%: 100 ETH - 399 ETH
+* 
 
-* 10%: 400 ETH - 999 ETH
-
-* 15%: 1,000+ ETH
+* 
 
 ## TRIP token distribution
 
