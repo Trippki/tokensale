@@ -104,7 +104,7 @@ It is an Ethereum based token implemented as ERC20 and is the functional token o
 
 ## TRIP Pre-sale (Bonus Period)
 
-The pre-sale will have a maintained whitelist of Ethereum addresses, ensuring that buyers are guaranteed to get their tokens and bonus. Pre-sale is capped at 18,000 ETH (half of the value of the hard cap). The minimum contribution is 20 ETH for the Pre-sale.
+The pre-sale will have a maintained whitelist of Ethereum addresses, ensuring that buyers are guaranteed to get their tokens and bonus. Pre-sale is capped at TBA. The minimum contribution is .5 ETH for the Pre-sale.
 
 **Pre-sale bonuses**
 * TBA
