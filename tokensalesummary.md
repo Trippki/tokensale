@@ -9,7 +9,7 @@ This document explains the distribution of TRIP and the details of the token sal
 
 * Ends in 14 days or when the hard cap is reached
 
-* Hard cap of 36,000* ETH. Soft cap 26,000** ETH
+* Hard cap of U$15m. Soft cap U$2m** 
 
 * No minimum cap
 
