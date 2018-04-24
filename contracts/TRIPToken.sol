@@ -1,4 +1,5 @@
-pragma solidity 0.4.18;
+pragma solidity 0.4.23;
+
 
 import "zeppelin-solidity/contracts/token/MintableToken.sol";
 import "zeppelin-solidity/contracts/token/PausableToken.sol";

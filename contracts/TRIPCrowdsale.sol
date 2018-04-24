@@ -1,4 +1,4 @@
-pragma solidity 0.4.18;
+pragma solidity 0.4.23;
 
 import "zeppelin-solidity/contracts/crowdsale/FinalizableCrowdsale.sol";
 import "zeppelin-solidity/contracts/lifecycle/Pausable.sol";
@@ -208,22 +208,16 @@ contract TRIPCrowdsale is FinalizableCrowdsale, Pausable {
         /*
          Pre-sale bonuses**
 
-         2%:	20 ETH - 99 ETH
-
-         5%:	100 ETH - 399 ETH
-
-         10%:	400 ETH - 999 ETH
-
-         15%:	1,000+ ETH
+				 First week – 30% bonus tokens
+				 Second week – 20% bonus tokens
+				 Third week – 10% bonus tokens
+				 Fourth week – 5% bonus tokens
         */
-        if (msg.value >= 20 ether && msg.value < 100 ether)
-            return 2;
-        if (msg.value >= 100 ether && msg.value < 400 ether)
-            return 5;
-        if (msg.value >= 400 ether && msg.value < 1000 ether)
-            return 10;
-        if (msg.value >= 1000 ether)
-            return 15;
+
+				if (now < startTime + 1 weeks) return 30;
+				if (now < startTime + 2 weeks) return 20;
+				if (now < startTime + 3 weeks) return 10;
+				if (now < startTime + 4 weeks) return 5;
     }
 
      /**
