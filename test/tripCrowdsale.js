@@ -26,7 +26,7 @@ contract('TRIPCrowdsale', ([owner, wallet, wallet2, wallet3, buyer, buyer2, advi
 
   const newCrowdsale = rate => {
     startTime = getBlockNow() + 20 // crowdsale starts in 20 seconds
-    presaleEndTime = startTime + dayInSecs * 20 // 20 days
+    presaleEndTime = startTime + dayInSecs * 28 // 20 days
     endTime = startTime + dayInSecs * 60 // 60 days
 
     return TRIPCrowdsale.new(
@@ -146,36 +146,43 @@ contract('TRIPCrowdsale', ([owner, wallet, wallet2, wallet3, buyer, buyer2, advi
       buyerBalance.should.be.bignumber.equal(0)
     })
 
-    it('has bonus of 2% during the presale', async () => {
-      await timer(50) // within presale period
-      await crowdsale.buyTokens(buyer2, { from: wallet2, value: 20e18 })
+    it('has bonus of 30% during first week', async () => {
+      await timer(50)
+      const buyingAmount = 20e18
+
+      await crowdsale.buyTokens(buyer2, { from: wallet2, value: buyingAmount })
 
       const buyerBalance = await token.balanceOf(buyer2)
-      buyerBalance.should.be.bignumber.equal(1020e18) // 2% bonus
+
+      buyerBalance.should.be.bignumber.equal(buyingAmount * rate * 1.3) // 30% bonus
     })
 
-    it('has bonus of 5% during the presale', async () => {
-      await timer(50) // within presale period
-      await crowdsale.buyTokens(buyer2, { value: 100e18 })
+    it('has bonus of 20% during second week', async () => {
+      await timer(50 + dayInSecs * 7)
+      const buyingAmount = 100e18
+
+      await crowdsale.buyTokens(buyer2, { value: buyingAmount })
 
       const buyerBalance = await token.balanceOf(buyer2)
-      buyerBalance.should.be.bignumber.equal(5250e18) // 5% bonus
+      buyerBalance.should.be.bignumber.equal(buyingAmount * rate * 1.2) // 20% bonus
     })
 
-    it('has bonus of 10% during the presale', async () => {
-      await timer(50) // within presale period
-      await crowdsale.buyTokens(buyer2, { value: 400e18 })
+    it('has bonus of 10% during third week', async () => {
+      await timer(50 + dayInSecs * 14) // within presale period
+      const buyingAmount = 400e18
+      await crowdsale.buyTokens(buyer2, { value: buyingAmount })
 
       const buyerBalance = await token.balanceOf(buyer2)
-      buyerBalance.should.be.bignumber.equal(22000e18) // 10% bonus
+      buyerBalance.should.be.bignumber.equal(buyingAmount * rate * 1.1) // 10% bonus
     })
 
-    it('has bonus of 15% during the presale', async () => {
-      await timer(50) // within presale period
-      await crowdsale.buyTokens(buyer2, { value: 1000e18 })
+    it('has bonus of 5% during fourth week', async () => {
+      await timer(50 + dayInSecs * 22) // within presale period
+      const buyingAmount = 400e18
+      await crowdsale.buyTokens(buyer2, { value: buyingAmount })
 
       const buyerBalance = await token.balanceOf(buyer2)
-      buyerBalance.should.be.bignumber.equal(57500e18) // 15% bonus
+      buyerBalance.should.be.bignumber.equal(new BigNumber(buyingAmount).times(rate * 1.05).toNumber()) // 5% bonus
     })
 
     it('stops presale once the presaleCap is reached', async () => {
