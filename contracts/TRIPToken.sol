@@ -1,8 +1,8 @@
-pragma solidity 0.4.23;
+pragma solidity 0.4.24;
 
 
-import "zeppelin-solidity/contracts/token/MintableToken.sol";
-import "zeppelin-solidity/contracts/token/PausableToken.sol";
+import "zeppelin-solidity/contracts/token/ERC20/MintableToken.sol";
+import "zeppelin-solidity/contracts/token/ERC20/PausableToken.sol";
 
 /**
  * @title TRIP Token contract - ERC20 compatible token contract.
@@ -23,7 +23,7 @@ contract TRIPToken is PausableToken, MintableToken {
     function burn(uint256 _value) external {
         address burner = msg.sender;
         balances[burner] = balances[burner].sub(_value);
-        totalSupply = totalSupply.sub(_value);
+        totalSupply_ = totalSupply_.sub(_value);
         Burn(burner, _value);
     }
 }
